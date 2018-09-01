@@ -1,0 +1,71 @@
+---
+title: "Assignment 1"
+output:
+  html_document: default
+  pdf_document: default
+---
+####Elina Azrilyan
+
+#####Assignment 1
+
+Your task is to study the dataset and the associated description of the data (i.e. “data dictionary”). You may need to look around a bit, but it’s there! You should take the data, and create a data frame with a subset of the columns in the dataset. You should include the column that indicates edible or poisonous and three or four other columns. You should also add meaningful column names and replace the abbreviations used in the data—for example, in the appropriate column, “e” might become “edible.” Your deliverable is the R code to perform these transformation tasks.
+
+Loading data from the following location into a data frame: https://archive.ics.uci.edu/ml/datasets/Mushroom
+```{r}
+MushroomData <- read.csv(file="https://archive.ics.uci.edu/ml/machine-learning-databases/mushroom/agaricus-lepiota.data", header=FALSE, sep=",")
+head(MushroomData)
+```
+Creating a subset of the mushroom data with only 5 columns: Class, Cap Shape, Cap Color, Odor, and Population. 
+```{r}
+SMushroomData <- data.frame(MushroomData$V1, MushroomData$V2, MushroomData$V5, MushroomData$V6, MushroomData$V22)
+head(SMushroomData)
+```
+Adding column names according to the data dictionary
+```{r}
+colnames(SMushroomData) <- c("Class","CapShape", "Bruises", "Odor", "Population")
+head(SMushroomData)
+```
+Replacing abbreviations with actual values
+```{r}
+SMushroomData$Class = as.character(SMushroomData$Class);
+SMushroomData$Class[SMushroomData$Class == "e"] = "edible";
+SMushroomData$Class[SMushroomData$Class == "p"] = "poisonous";
+head(SMushroomData)
+
+SMushroomData$CapShape = as.character(SMushroomData$CapShape);
+SMushroomData$CapShape[SMushroomData$CapShape == "b"] = "bell";
+SMushroomData$CapShape[SMushroomData$CapShape == "c"] = "conical";
+SMushroomData$CapShape[SMushroomData$CapShape == "x"] = "convex";
+SMushroomData$CapShape[SMushroomData$CapShape == "f"] = "flat";
+SMushroomData$CapShape[SMushroomData$CapShape == "k"] = "knobbed";
+SMushroomData$CapShape[SMushroomData$CapShape == "s"] = "sunken";
+head(SMushroomData)
+
+SMushroomData$Bruises = as.character(SMushroomData$Bruises);
+SMushroomData$Bruises[SMushroomData$Bruises == "t"] = "yes";
+SMushroomData$Bruises[SMushroomData$Bruises == "f"] = "no";
+head(SMushroomData)
+
+SMushroomData$Odor = as.character(SMushroomData$Odor);
+SMushroomData$Odor[SMushroomData$Odor == "a"] = "almond";
+SMushroomData$Odor[SMushroomData$Odor == "l"] = "anise";
+SMushroomData$Odor[SMushroomData$Odor == "c"] = "creosote";
+SMushroomData$Odor[SMushroomData$Odor == "y"] = "fishy";
+SMushroomData$Odor[SMushroomData$Odor == "f"] = "foul";
+SMushroomData$Odor[SMushroomData$Odor == "m"] = "musty";
+SMushroomData$Odor[SMushroomData$Odor == "n"] = "none";
+SMushroomData$Odor[SMushroomData$Odor == "p"] = "pungent";
+SMushroomData$Odor[SMushroomData$Odor == "s"] = "spicy";
+head(SMushroomData)
+
+SMushroomData$Population = as.character(SMushroomData$Population);
+SMushroomData$Population[SMushroomData$Population == "a"] = "abundant";
+SMushroomData$Population[SMushroomData$Population == "c"] = "clustered";
+SMushroomData$Population[SMushroomData$Population == "n"] = "numerous";
+SMushroomData$Population[SMushroomData$Population == "s"] = "scattered";
+SMushroomData$Population[SMushroomData$Population == "v"] = "several";
+SMushroomData$Population[SMushroomData$Population == "y"] = "solitary";
+head(SMushroomData)
+```
+
+
