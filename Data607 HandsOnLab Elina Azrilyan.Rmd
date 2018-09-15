@@ -1,0 +1,30 @@
+---
+title: "DATA607 Hands on Lab"
+output:
+  html_document: default
+  pdf_document: default
+---
+Elina Azrilyan
+
+Lab 1
+You should first study the data and its associated description (i.e. “data dictionary”). You should take the data, and
+create an R data frame with a subset of the columns in the dataset. You should provide relevant column names.
+Your deliverable is the R Markdown code to perform these transformation tasks.
+
+Loading data from the following location into a data frame: https://archive.ics.uci.edu/ml/machine-learning-databases/bridges/
+```{r}
+BridgeData <- read.csv(file="https://archive.ics.uci.edu/ml/machine-learning-databases/mushroom/agaricus-lepiota.data", header=FALSE, sep=",")
+head(BridgeData)
+```
+Adding column names according to the data dictionary
+```{r}
+colnames(BridgeData) <- c("IDENTIF","RIVER", "LOCATION", "ERECTED", "PURPOSE", "LENGTH", "LANES", "CLEAR-G", "T-OR-D", "MATERIAL", "SPAN", "REL-L", "TYPE")
+head(BridgeData)
+```
+New data frame with a subset of columns
+```{r}
+SBridges <- data.frame(BridgeData$IDENTIF, BridgeData$PURPOSE, BridgeData$MATERIAL, BridgeData$SPAN)
+head(SBridges)
+```
+
+
