@@ -1,0 +1,105 @@
+---
+title: "Data607 Project1"
+output: html_document
+---
+####Elina Azrilyan
+####Project 1
+09/16/2018
+
+#####Project 1. 
+In this project, you’re given a text file with chess tournament results where the information has some structure. Your job is to create an R Markdown file that generates a .CSV file (that could for example be imported into a SQL database) with the following information for all of the players:
+
+Player’s Name, Player’s State, Total Number of Points, Player’s Pre-Rating, and Average Pre Chess Rating of Opponents
+
+For the first player, the information would be:Gary Hua, ON, 6.0, 1794, 1605
+
+1605 was calculated by using the pre-tournament opponents’ ratings of 1436, 1563, 1600, 1610, 1649, 1663, 1716, and dividing by the total number of games played.
+
+##### Let's read in our text file. 
+```{r}
+#setwd("/Users/elinaazrilyan/Documents/Fall 2018/Data 607/Week 4/")
+ch.data <- read.delim("tournamentinfo.txt", header = FALSE, sep = "|", skip=4, stringsAsFactors = FALSE)
+library("stringr")
+head(ch.data,10)
+```
+
+We can see from the data that the data for each player is stored in 2 rows - it will require some manupulation to get the results we need. We will need to combine player data into 1 row. 
+
+#####Now we want split up the data into 2 data frames which contail Row 1 and Row 2 player Data.
+
+```{r}
+ch.data2 <- ch.data[seq(1 , 192, 3), ]
+head(ch.data2)
+ch.data2.row2 <- ch.data[seq(2 , 192, 3), ]
+head(ch.data2.row2)
+```
+
+#####We will now merge the columns of the 2 data frames in order to have each player's data on a single tow and add column names.
+
+```{r}
+new.ch.data<-data.frame(ch.data2$V1, ch.data2$V2, ch.data2$V3, ch.data2$V4, ch.data2$V5, ch.data2$V6, ch.data2$V7, ch.data2$V8, ch.data2$V9, ch.data2$V10, ch.data2.row2$V1, ch.data2.row2$V2)
+names(new.ch.data) <- c("ID", "Name", "Score", "R1", "R2", "R3", "R4", "R5", "R6", "R7", "State", "Stat")
+head(new.ch.data)
+```
+
+#####Now we need to extract pre-game rating and add a column with that info
+
+```{r}
+PGRTG <- unlist(str_extract_all(new.ch.data$Stat, "R: +\\d{3,4}"))
+PGRTG <- unlist(str_extract_all(PGRTG, "\\d{3,4}"))
+new.ch.data$PGRTG <- PGRTG
+new.ch.data$PGRTG<-as.integer(new.ch.data$PGRTG)
+head (new.ch.data)
+```
+
+#####Adding columns to extract numeric value only for opponents for each round.
+
+```{r}
+new.ch.data$R1n<-unlist(str_replace(new.ch.data$R1,"\\w{1}\\s*(\\d*)","\\1"))
+new.ch.data$R2n<-unlist(str_replace(new.ch.data$R2,"\\w{1}\\s*(\\d*)","\\1"))
+new.ch.data$R3n<-unlist(str_replace(new.ch.data$R3,"\\w{1}\\s*(\\d*)","\\1"))
+new.ch.data$R4n<-unlist(str_replace(new.ch.data$R4,"\\w{1}\\s*(\\d*)","\\1"))
+new.ch.data$R5n<-unlist(str_replace(new.ch.data$R5,"\\w{1}\\s*(\\d*)","\\1"))
+new.ch.data$R6n<-unlist(str_replace(new.ch.data$R6,"\\w{1}\\s*(\\d*)","\\1"))
+new.ch.data$R7n<-unlist(str_replace(new.ch.data$R7,"\\w{1}\\s*(\\d*)","\\1"))
+
+head(new.ch.data)
+```
+
+#####Adding columns with opponent ratings.
+
+```{r}
+new.ch.data$R1nr<-new.ch.data[new.ch.data$R1n, "PGRTG"]
+new.ch.data$R2nr<-new.ch.data[new.ch.data$R2n, "PGRTG"]
+new.ch.data$R3nr<-new.ch.data[new.ch.data$R3n, "PGRTG"]
+new.ch.data$R4nr<-new.ch.data[new.ch.data$R4n, "PGRTG"]
+new.ch.data$R5nr<-new.ch.data[new.ch.data$R5n, "PGRTG"]
+new.ch.data$R6nr<-new.ch.data[new.ch.data$R6n, "PGRTG"]
+new.ch.data$R7nr<-new.ch.data[new.ch.data$R7n, "PGRTG"]
+```
+
+#####We are going to calculate average opponent rating.
+
+```{r}
+
+new.ch.data$avgopprtg <-round(rowMeans( new.ch.data[ , c("R1nr", "R2nr", "R3nr", "R4nr", "R5nr", "R6nr", "R7nr")], na.rm = TRUE ))
+
+head(new.ch.data)
+```
+
+#####Now we are extracting the columns we need.
+
+```{r}
+final.ch.data<-data.frame(new.ch.data$Name, new.ch.data$State, new.ch.data$Score, new.ch.data$PGRTG, new.ch.data$avgopprtg)
+names(final.ch.data) <- c("Player Name", "State", "Number of Points", "Pre-Rating", "Opponent Rating")
+
+final.ch.data
+```
+
+#####Now we can create a csv. file with our data
+
+```{r}
+write.csv(final.ch.data, file = "ChessData.csv")
+```
+
+#####In conclusion, cleaning up the data was the most challenging part of this project. Once the data was sorted into a data frame - manipualtions were fairly straightforward. It was a great opportunity to scratch the surface of applications of regular expressions. I feel like there was probably an easier way to calculate the average opponent rating by writing a function which would loop through that calculation. It was suprisingly easy to deal with NA values in opponent rating calculation. 
