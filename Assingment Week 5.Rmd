@@ -1,0 +1,94 @@
+---
+title: "Assignment Week 5"
+output: html_document
+---
+#### Elina Azrilyan
+#### Week 5 Assignment
+#####24 Sep 2018
+
+The chart above describes arrival delays for two airlines across five destinations. Your task is to:
+
+(1) Create a .CSV file (or optionally, a MySQL database!) that includes all of the information above. You’re encouraged to use a “wide” structure similar to how the information appears above, so that you can practice tidying and transformations as described below.
+
+I have started by creating a .csv file with the arrival delay information provided in the assignment. I uploaded my .csv file to github to read it from an online location. The data includes blanks and it is challenging to analyze it in this format. 
+
+```{r message=FALSE}
+#install.packages("tidyverse")
+#install.packages("dplyr")
+require(dplyr)
+require(tidyr)
+
+AirData <- read.csv(file="https://raw.githubusercontent.com/che10vek/Data-607-Assignments/master/Assignment%205%20Data.csv", header=TRUE, sep=",")
+head(AirData)
+```
+
+(2) Read the information from your .CSV file into R, and use tidyr and dplyr as needed to tidy and transform your data.
+
+Now that we have read in our data - we need to clean up and transform it to make it possible to do analysis. 
+
+This code will get read of NAs:
+```{r}
+newairdata <- subset(AirData, AirData$X.1 != "") 
+head(newairdata)
+```
+
+I struggled with filling the blank cells with the value from the cell above quiet a bit. I ended up finding a function on the following webpage and adopting it a bit for my data: https://stackoverflow.com/questions/10554741/fill-in-data-frame-with-values-from-rows-above 
+
+```{r}
+f4 <- function(x, blank = "") {
+# Find the values
+if (is.function(blank)) {
+  isnotblank <- !blank(x)
+  } else {
+    isnotblank <- x != blank
+  }
+# Fill down
+x[which(isnotblank)][cumsum(isnotblank)]
+}
+
+newairdata$X <- f4(newairdata$X)
+head (newairdata)
+```
+
+The following step converts this "wide"" data set into "long" data.
+```{r}
+air_data_long <- newairdata %>% gather(City, Count, Los.Angeles:Seattle)
+air_data_long
+```
+
+(3) Perform analysis to compare the arrival delays for the two airlines.
+
+I have manipulated the data further to get the "on time" and "delayed" data into columns.
+
+```{r}
+air_data_long2 <- air_data_long %>% spread(X.1, Count)
+air_data_long2
+```
+
+Let's add a column with includes percentages to give us a beter understanding of delays for each city.
+
+```{r}
+air_data_long2 <- mutate(air_data_long2,
+       PercentageDelayed = round(air_data_long2$delayed/(air_data_long2$delayed + air_data_long2$'on time')*100,2)
+ )
+air_data_long2 <- mutate(air_data_long2,
+       PercentageOnTime = round(air_data_long2$'on time'/(air_data_long2$delayed+air_data_long2$'on time')*100,2)
+)
+air_data_long2
+```
+
+Now let's look at the data graphically. We do a boxplot and looks at Percentage of delayed flights for both airlines. We can see that AM West has much higher percentage delayed.
+
+```{r}
+plot(air_data_long2$X, air_data_long2$PercentageDelayed)
+```
+
+We can also look at Percent on time and that shows us the same result. Alaska has a much higher percent of on time arrivals. 
+
+```{r}
+plot(air_data_long2$X, air_data_long2$PercentageOnTime)
+```
+
+(4) Your code should be in an R Markdown file, posted to rpubs.com, and should include narrative descriptions of your data cleanup work, analysis, and conclusions. Please include in your homework submission:
+ The URL to the .Rmd file in your GitHub repository. and
+ The URL for your rpubs.com web page.
