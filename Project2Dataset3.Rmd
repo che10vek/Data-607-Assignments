@@ -1,0 +1,45 @@
+---
+title: "Project2Dataset3"
+output: html_document
+---
+
+```{r}
+library(xml2)
+library(stringr)
+
+#This code reads in the data from the webpage
+thepage = readLines('https://www.boxofficemojo.com/alltime/world/')
+
+#This code locates the lines we are intersted in which include our data
+grep('</td></tr>', thepage)
+thepage[167:177]
+mypattern = '<td.+>.*<.+</td>'
+datalines = grep(mypattern,thepage[168:1295],value=TRUE)
+head(datalines,15)
+ 
+ #This compicated code parses out only the data we need - I am sure there is a more efficinet way of doing this - but since regular expressions are hard it is the best I could do.
+getexpr = function(s,g)substring(s,g,g+attr(g,'match.length')-1)
+ gg = gregexpr('>(.+?)<',datalines)
+ matches = mapply(getexpr,datalines,gg)
+ result = gsub('>(.+?)<','\\1',matches)
+ names(result) = NULL
+ head(result)
+   result2 = str_extract(result, '>[:print:]*')
+ head(result2)
+    result3 = str_replace(result2, '>*', '')
+ head(result3,10)
+     result4 = str_replace(result3, '[:punct:]*[:blank:]+[:punct:]*', '')
+ head(result4,10)
+      result5 = str_replace(result4, '<b>', '')
+ head(result5,10)
+      result6 = str_replace(result5, '\\", \"<[:graph:]*', '')
+ head(result6,30)
+       result7 = str_replace(result6, '\\"[:punct:]{1}', '')
+ head(result7,30)
+
+ #This code reads our parsed data into a dataframe.
+ 
+finalmov <- data.frame("Title" = result7[seq(1, 899, 9)], "Studio" = result7[seq(2, 899, 9)], "Total" = result7[seq(3, 899, 9)], "DomGross" = result7[seq(4, 899, 9)], "DomPerc" = result7[seq(5, 899, 9)], "IntlGross" = result7[seq(6, 899, 9)], "IntlPerc" = result7[seq(7, 899, 9)], "Year" = result7[seq(8, 899, 9)])
+
+head(finalmov)
+```
