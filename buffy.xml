@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="ISO-8859-1"?> <buffy_books>
+<book="1">
+<title>The Psychology of Joss Whedon</title>
+<author>Joy Davidson, Leah Wilson</author>
+<year>2007</year>
+<usprice>$17.95</usprice>
+<book="2">
+<title>Seven Seasons of Buffy</title>
+<author>Glenn Yeffeth</author>
+<year>2003</year>
+<usprice>$15.95</usprice>
+<book="3">
+<title>Five Seasons of Angel</title>
+<author>Glenn Yeffeth</author>
+<year>2004</year>
+<usprice>$17.95</usprice>
+</book> </buffy_books>
