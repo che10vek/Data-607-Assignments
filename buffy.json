@@ -1,4 +1,5 @@
-{
+[
+  {
 "title" : "The Psychology of Joss Whedon",
 "author" : ["Joy Davidson", "Leah Wilson"],
 "year" : 2007,
@@ -16,3 +17,4 @@
 "year" : 2004,
 "usprice" : "$17.95"
 }
+]
