@@ -1,0 +1,74 @@
+---
+title: "Assignment 7"
+author: "Elina Azrilyan"
+date: "10/09/2018"
+output: 
+  html_document: 
+    theme: cerulean
+---
+####Assignment
+Pick three of your favorite books on one of your favorite subjects. At least one of the books should have more than one author. For each book, include the title, authors, and two or three other attributes that you find interesting. 
+
+Take the information that you’ve selected about these three books, and separately create three files which store the book’s information in HTML (using an html table), XML, and JSON formats (e.g. “books.html”, “books.xml”, and “books.json”). To help you better understand the different file structures, I’d prefer that you create each of these files “by hand” unless you’re already very comfortable with the file formats.
+
+Write R code, using your packages of choice, to load the information from each of the three sources into separate R data frames. Are the three data frames identical?
+
+Your deliverable is the three source files and the R code. If you can, package your assignment solution up into an .Rmd file and publish to rpubs.com. [This will also require finding a way to make your three text files accessible from the web].
+
+#### Files
+Below are the three files which I have created to summarize three books on anylisis of the works of Joss Whedon. All three books are collections of essays discussing psychology behind and various themes of some of his works. The tables include: title, author, year the book was published, and recommended price.
+
+##### HTML
+
+https://raw.githubusercontent.com/che10vek/Data-607-Assignments/master/Buffy.html
+
+##### XML
+
+https://raw.githubusercontent.com/che10vek/Data-607-Assignments/master/buffy.xml
+
+##### JSON
+
+https://raw.githubusercontent.com/che10vek/Data-607-Assignments/master/buffy.json
+
+#### Loading the information into R data frames. 
+
+```{r}
+library(XML)
+library(RCurl)
+library(jsonlite)
+```
+
+##### HTML
+
+Below is the code for loading data from my html table into a data frame. I had to add column titles separately. 
+
+```{r}
+htmlurl <- getURL("https://raw.githubusercontent.com/che10vek/Data-607-Assignments/master/Buffy.html")
+x <- readHTMLTable(htmlurl)
+df_html<-data.frame(x)
+colnames(df_html)<-c("title", "authors", "year", "usprice")
+df_html
+```
+
+##### XML
+
+XML package has xmlParse function which adds data as a list - but there is a convinient xlmToDataFrame function which helps with conversion to dataframe. 
+
+```{r}
+xmlurl <- getURL("https://raw.githubusercontent.com/che10vek/Data-607-Assignments/master/buffy.xml")
+y <- xmlParse(xmlurl)
+df_xml <- xmlToDataFrame(y)
+df_xml
+```
+
+##### JSON
+
+The most straightforward conversion was done using jsonlite package. 
+
+```{r}
+jsonurl <- getURL("https://raw.githubusercontent.com/che10vek/Data-607-Assignments/master/buffy.json")
+df_json <- fromJSON(jsonurl)
+df_json
+```
+
+Once all the formatting changes are done - the 3 data frames are identical. I had to make conversion from list and rename the columns in html file. Xml file required conversion from a list. Json didn't require any fomating changes. 
