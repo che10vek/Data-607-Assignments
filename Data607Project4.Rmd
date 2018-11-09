@@ -1,0 +1,100 @@
+---
+title: "Project 4"
+output: html_document
+---
+
+####Elina Azrilyan
+
+####Project 4
+
+#####11/1/18
+
+It can be useful to be able to classify new "test" documents using already classified "training" documents.  A common example is using a corpus of labeled spam and ham (non-spam) e-mails to predict whether or not a new document is spam.  
+
+For this project, you can start with a spam/ham dataset, then predict the class of new documents (either withheld from the training dataset or from another source such as your own spam folder).   
+
+####I have begun by downloading the files at the location below:
+
+https://spamassassin.apache.org/old/publiccorpus/20030228_easy_ham.tar.bz2
+
+https://spamassassin.apache.org/old/publiccorpus/20030228_spam_2.tar.bz2
+
+####The next step was to load required packages:
+
+```{r}
+suppressPackageStartupMessages(require(tidyverse))
+suppressPackageStartupMessages(require(tm))
+```
+
+####Reading in the data. 
+
+I read in the data as a Corpus by creating 2 separate files, one for each type of data: ham and spam. 
+
+```{r}
+#Used the following help page to figure out for to read in corpus data: https://stackoverflow.com/questions/27340008/loading-the-data-to-corpus-from-2-directories-in-r
+
+spam <- DirSource("/Users/elinaazrilyan/Documents/Fall 2018/Data 607/Project4/spam_2 2")
+spam_corpus <- Corpus(spam, readerControl=list(reader=readPlain))
+length(spam_corpus)
+
+ham <- DirSource("/Users/elinaazrilyan/Documents/Fall 2018/Data 607/Project4/easy_ham_2")
+ham_corpus <- Corpus(ham, readerControl=list(reader=readPlain))
+length(ham_corpus)
+```
+
+####Analysis.
+
+The next and final step was to identify the 10 top words most commonly associated with ham and spam email. This will be useful for future analysis to search for such words in an exmaple data set. I will not be doing that analysis in this project. 
+
+```{r}
+docs <- ham_corpus
+
+#This code makes everything lowercase
+docs <- tm_map(docs, content_transformer(tolower))
+
+#This code removes common English stop words (not relevant for analysis)
+docs <- tm_map(docs, removeWords, stopwords("english"))
+
+#This code removes numbers
+docs <- tm_map(docs, removeNumbers)
+
+#The code below removes headed information - I did that manually since it was the only way I came up with in this data corpus
+docs <- tm_map(docs, removeWords, c("com", "net", "org", "for", "with", "localhost", "received", "com", "net", "org", "for", "with", "localhost", "received", "font", "size", "nbsp", "color", "http", "width", "face", "align", "arial", "www", "center", "height", "table", "netnoteinc", "href", "aug", "border", "html", "content", "mail", "verdana", "helvetica", "style", "bgcolor", "type", "text", "esmtp", "may", "div", "name", "sans", "subject", "img", "src", "serif", "email", "ffffff", "smtp", "tue", "list", "message", "will", "can", "date", "mon", "valign", "xent", "fork", "gif", "span", "cellpadding", "cellspacing", "version", "body", "jul", "return", "yyyy", "yahoo", "mailto", "charset", "images", "path", "thu", "left", "linux", "ilug", "admin", "users", "sourceforge", "spamassassin", "mailman", "rpm", "taint", "razor", "lugh", "listinfo", "freshrpms", "lists", "postfix", "tuatha", "phobos", "wed", "exmh", "fri", "slashnull", "edt", "zzzlist", "jmason", "ist", "sender", "delivered", "dogma", "help", "labs", "mime", "drop", "imap", "fetchmail", "beenthere", "redhat", "root", "bulk", "plain", "reply", "egwn", "usw", "pdt")) 
+
+
+#Now that we have finished claning up our corpus, let's create a table with 10 most common words.
+dtm <- TermDocumentMatrix(docs)
+m <- as.matrix(dtm)
+v <- sort(rowSums(m),decreasing=TRUE)
+d <- data.frame(word = names(v),freq=v)
+head(d, 10)
+```
+
+I ran into an issue with spam data, where I kept getting a gsub error. I had to manually remove a large chunk of my spam data to fix it. I believe my computer was having a memory issue, or perhaps there were a few corrupt files in the data which were cause the error. The dataset was reduced from 
+
+```{r}
+docs2 <- spam_corpus
+
+#This code makes everything lowercase
+docs2 <- tm_map(docs2, content_transformer(tolower))
+
+#This code removes common English stop words (not relevant for analysis)
+docs2 <- tm_map(docs2, removeWords, stopwords("english"))
+
+#This code removes numbers
+docs2 <- tm_map(docs2, removeNumbers)
+
+#The code below removes headed information - I did that manually since it was the only way I came up with in this data corpus
+docs2 <- tm_map(docs2, removeWords, c("com", "net", "org", "for", "with", "localhost", "received", "font", "size", "nbsp", "color", "http", "width", "face", "align", "arial", "www", "center", "height", "table", "netnoteinc", "href", "aug", "border", "html", "content", "mail", "verdana", "helvetica", "style", "bgcolor", "type", "text", "esmtp", "may", "div", "name", "sans", "subject", "img", "src", "serif", "email", "ffffff", "smtp", "tue", "list", "message", "will", "can", "date", "mon", "valign", "xent", "fork", "gif", "span", "cellpadding", "cellspacing", "version", "body", "jul", "return", "yyyy", "yahoo", "mailto", "charset", "images", "path", "thu", "left")) 
+
+#This code creates a table with 10 most common words.
+dtm2 <- TermDocumentMatrix(docs2)
+m2 <- as.matrix(dtm2)
+v2 <- sort(rowSums(m2),decreasing=TRUE)
+d2 <- data.frame(word = names(v2),freq=v2)
+head(d2, 10)
+```
+
+####Conclusion
+
+I have obtained the list of most common terms associated with ham and spam data. At a future time this may be used to feed this data to a model which will allow us to predict whether the message is spam or legitimate, but it is out of scope for this project.
