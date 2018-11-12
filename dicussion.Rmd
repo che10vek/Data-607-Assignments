@@ -1,0 +1,41 @@
+---
+title: "MovieLens"
+output: html_document
+---
+####Elina Azrilyan
+
+#### Discussion Post
+
+Assignment:
+
+Your task is to analyze an existing recommender system that you find interesting.  You should:
+
+1 . Perform a Scenario Design analysis as described below.  Consider whether it makes sense for your selected recommender system to perform scenario design twice, once for the organization (e.g. Amazon.com) and once for the organization's customers.
+
+2. Attempt to reverse engineer what you can about the site, from the site interface and any available information that you can find on the Internet or elsewhere.
+
+3. Include specific recommendations about how to improve the site's recommendation capabilities going forward. 
+
+4. Create your report using an R Markdown file, and create a discussion thread with a link to the GitHub repo where your Markdown file notebook resides.  You are not expected to need to write code for this discussion assignment.
+
+It is very difficult to find a good movie recommendation engine. The following website is one example:
+
+https://movielens.org
+
+1. Scenario Analysis: 
+
+User perscective. 
+Target users are people looking for a movie recommendation. Their goal is to find a movie they are going to enjoy in the thousands of films available. The website gathers their ratings for various films and based on their responses it recommends other movies they might enjoy which they haven't already seen. 
+
+
+2. Reverse Engineer
+
+The website maintains a database with extensive information about movie reviews and uses that information to make recomendations based of what other users with similar tastes enjoy: https://grouplens.org/datasets/movielens/100k/
+
+The website requires users to create an account - that gives the business access to more details about the user. email addresses can be used to target movie advertiment for future releases. They can also create target screenings for a specific film targetting a specific demographics. 
+
+3. Recommendations.
+
+A recommended improvement would be a way to mark a film as an outlier or indicate what exactly you enjoy about that film. Our tastes are subjective and sometimes I can enjoy a film because I really like a particular actor or just one aspect of it which doesn't necessarily indicate that I enjoy the genre or that type of films in general. 
+
+Perhaps, they can link user profile to social media to expand access to user infomation and improve recommendations that way.
