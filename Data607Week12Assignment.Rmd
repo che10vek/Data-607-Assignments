@@ -1,0 +1,157 @@
+---
+title: "Week 12 Assignment - NoSQL Migration"
+output: html_document
+---
+###NoSQL Migration
+####Elina Azrilyan
+####20 November 2018
+
+For this assignment, you should take information from a relational database and migrate it to a NoSQL database of your own choosing. 
+
+For the relational database, you might use the flights database, the tb database, the "data skills" database your team created for Project 3, or another database of your own choosing or creation.
+
+For the NoSQL database, you may use MongoDB (which we introduced in week 7), Neo4j, or another NoSQL database of your choosing.
+
+Your migration process needs to be reproducible.  R code is encouraged, but not required.  You should also briefly describe the advantages and disadvantages of storing the data in a relational database vs. your NoSQL database.
+
+####Step 1. Pulling data from SQL database into R.
+
+##### Loading Packages.
+First we load RMySQL and strings packages using the following code.
+
+```{r}
+# loading package
+# install.packages("RMySQL")
+# install.packages("stringr")
+library(RMySQL)
+library(stringr)
+```
+
+#####Establish connection.
+Then we connect to the database from R.
+
+```{r}
+con <- dbConnect(MySQL(), user='root', password='root', dbname='Flights', host='localhost')
+```
+
+#####Import Data.
+We run a query to create the dataframes which now contain flights database tables.
+
+```{r}
+airlines <- dbGetQuery(con, "SELECT * FROM airlines;")
+airports <- dbGetQuery(con, "SELECT * FROM airports;")
+flights <- dbGetQuery(con, "SELECT * FROM flights;")
+planes <- dbGetQuery(con, "SELECT * FROM planes;")
+weather <- dbGetQuery(con, "SELECT * FROM weather;")
+```
+
+We can now disconnect the database and visually inspect our data. 
+
+```{r}
+# Disconecting from Database
+dbDisconnect(con)
+
+head(airlines)
+#Looks lie there are "/r" present in the airline names - let's get rid of those:
+airlines$name<-str_replace(airlines$name,"\\r","")
+
+head(airlines)
+head(airports)
+head(flights)
+head(planes)
+head(weather)
+```
+
+####Step 2. Exporting Data
+
+Now let's load required package and export the data to Neo4j database. 
+
+```{r}
+
+# using base code from the following package help page  https://nicolewhite.github.io/2014/05/30/demo-of-rneo4j-part1.html"
+
+#install.packages("devtools")
+#devtools::install_github("nicolewhite/RNeo4j")
+library(RNeo4j)
+
+graph = startGraph("http://localhost:7474/db/data/", username = "neo4j", password = "graph")
+clear(graph, input = FALSE)
+```
+
+Let's load the tables - I am omititng some of the data just to keep it simple. Same code can be expanded to import all the columns and all tables. 
+
+```{r}
+
+for ( i in 1: nrow(airports) ) {
+createNode (graph, "airports", 
+            faa = airports[[i,"faa" ]],
+            airportname = airports[[i,"name"]], 
+            dst = airports[[i,"dst"]]  
+            )
+}
+```
+
+```{r}
+for ( j in 1: nrow(airlines) ) {
+createNode (graph, "airlines", 
+            carrier = airlines[[j,"carrier" ]],
+            airlinename = airlines[[j,"name"]]
+            )
+}
+```
+
+I am going to limit the number of rows I import from flights since my computer can't handle so much data and freezes when I try to import all rows.
+
+```{r}
+#replacing for ( k in 1: nrow(flights) ) {   WITH
+
+for ( k in 1: 2000 ) {
+createNode (graph, "flights", 
+            carrier = flights[[k,"carrier" ]],
+            tailnum = flights[[k,"tailnum"]],
+            flight = flights[[k,"flight" ]],
+            origin = flights[[k,"origin" ]],
+            dest = flights[[k,"dest" ]]
+            )
+}
+```
+
+
+#### Step 3. Validation.
+
+To make sure that it worked - let's create a couple of queries to illustrate how we are using cypher on Neo4j data:
+
+```{r}
+queryresult <- cypher(graph, "MATCH (a:flights), (b:airports) where a.dest = b.faa RETURN a.dest, a.carrier, a.tailnum, a.flight, a.origin, b.airportname, b. dst ")
+head(queryresult)
+
+queryresult2 <- cypher(graph, "MATCH (a:flights), (b:airlines) where a.carrier = b.carrier RETURN a.dest, a.carrier, a.tailnum, a.flight, a.origin, b.airlinename")
+head(queryresult2)
+```
+
+#### Step 4. Advantages and Disadvantages.
+
+Each type of database has it's own advantages so it will depend on the type of data you are working with to determine what's a better option for your needs. 
+
+There are several advantages of storing the data in a relational database vs. your NoSQL database: 
+
+- Relational Databases like SQL are compatible with all major platforms
+
+- Easy to replicate
+
+- Works better for highly structured type of data
+
+Here are the disadvantages of realtional databases:
+
+- Dynamic schema, meaning that you have the flexibility to change your data schema without modifying any of your existing data.
+
+- Scalability, graph databases are horizontally scalable
+
+- Manageability, noSQL databases are easier to manage, doesn't require and administrator
+
+- Speed, you can get lightining speed results for simple queries.
+
+- Flexibility, you can add new columns or fields on graph DB without affecting existing rows
+
+Source: https://medium.com/xplenty-blog/the-sql-vs-nosql-difference-mysql-vs-mongodb-32c9980e67b2
+
